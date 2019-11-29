@@ -1,0 +1,83 @@
+#!/usr/bin/with-contenv bash
+
+# 1. Configure workspace
+# 2. Allow go-agent key, resources and environments be set on docker container start
+# 3. Runit service, similarly to:
+# https://github.com/gocd/gocd-docker/blob/master/gocd-agent/go-agent-start.sh
+
+yell() { echo "$0: $*" >&2; }
+die() { yell "$*"; exit 111; }
+try() { echo "$ $@" 1>&2; "$@" || die "cannot $*"; }
+
+GO_AGENT_NAME="${GO_AGENT_NAME:-go-agent}"
+AGENT_WORK_DIR="/var/lib/${GO_AGENT_NAME}"
+RED="\e[31m"
+GREEN="\e[32m"
+NC="\e[0m"
+
+mkdir -p ${AGENT_WORK_DIR}/config
+chmod 0755 ${AGENT_WORK_DIR}
+chmod 0700 ${AGENT_WORK_DIR}/config
+
+source /var/go/gocd_agent_key
+
+setup_autoregister_properties_file_for_elastic_agent() {
+  echo "agent.auto.register.key=${AGENT_KEY}" >> $1
+  echo "agent.auto.register.environments=${AGENT_ENVIRONMENTS}" >> $1
+  echo "agent.auto.register.elasticAgent.agentId=${ELASTIC_AGENT_ID}" >> $1
+  echo "agent.auto.register.elasticAgent.pluginId=${ELASTIC_PLUGIN_ID}" >> $1
+  echo "agent.auto.register.hostname=${AGENT_HOSTNAME}" >> $1
+
+  # unset variables, so we don't pollute and leak sensitive stuff to the agent process...
+  unset AGENT_KEY AGENT_ENVIRONMENTS ELASTIC_AGENT_ID ELASTIC_PLUGIN_ID AGENT_HOSTNAME
+}
+
+setup_autoregister_properties_file_for_normal_agent() {
+  echo "agent.auto.register.key=${AGENT_KEY}" >> $1
+  echo "agent.auto.register.resources=${AGENT_RESOURCES}" >> $1
+  echo "agent.auto.register.environments=${AGENT_ENVIRONMENTS}" >> $1
+  echo "agent.auto.register.hostname=${AGENT_HOSTNAME}" >> $1
+
+  # unset variables, so we don't pollute and leak sensitive stuff to the agent process...
+  unset AGENT_KEY AGENT_RESOURCES AGENT_ENVIRONMENTS AGENT_HOSTNAME
+}
+
+setup_autoregister_properties_file() {
+  if [ -n "$ELASTIC_AGENT_ID" ]; then
+    setup_autoregister_properties_file_for_elastic_agent "$1"
+    try chown go:go $1
+  else
+    setup_autoregister_properties_file_for_normal_agent "$1"
+    try chown go:go $1
+  fi
+}
+
+if [ -z "$AGENT_KEY" ]; then
+  echo -e "${RED}fail! AGENT_KEY not set${NC}"
+  exit 1
+fi
+
+chown go:go -R ${AGENT_WORK_DIR}
+
+setup_autoregister_properties_file "${AGENT_WORK_DIR}/config/autoregister.properties"
+
+if [[ ! -z "${GO_SERVER_URL}" ]]; then
+  GO_SERVER_URL="${GO_SERVER_URL}"
+elif [[ -n "${GO_SERVER}" ]]; then
+  echo -e "${RED}fail! GO_SERVER set instead of GO_SERVER_URL, which is obsolete${NC}"
+  exit 1
+else
+  GO_SERVER_URL="https://127.0.0.1:8154/go"
+fi
+echo "Starting agent with go-server ${GO_SERVER_URL}"
+echo "#!/bin/bash" > /etc/default/go-agent
+echo "export GO_SERVER_URL=${GO_SERVER_URL}" >> /etc/default/go-agent
+echo "export AGENT_WORK_DIR=${AGENT_WORK_DIR}" >> /etc/default/go-agent
+echo "export DAEMON=N" >> /etc/default/go-agent
+# these 3 vars are used by `/go-agent/agent.sh`, so we export
+echo "export AGENT_WORK_DIR=${AGENT_WORK_DIR}" >>  /etc/default/go-agent
+echo "export GO_AGENT_SYSTEM_PROPERTIES=${GO_AGENT_SYSTEM_PROPERTIES}${GO_AGENT_SYSTEM_PROPERTIES:+ }-Dgo.console.stdout=true" >> /etc/default/go-agent
+echo "export AGENT_BOOTSTRAPPER_JVM_ARGS=${AGENT_BOOTSTRAPPER_JVM_ARGS}${AGENT_BOOTSTRAPPER_JVM_ARGS:+ }-Dgo.console.stdout=true" >> /etc/default/go-agent
+
+echo -e "${GREEN}Starting Go Agent: ${GO_AGENT_NAME} to connect to server ${GO_SERVER_URL} ...${NC}"
+exec su - go -c 'set -x && source /etc/default/go-agent && /usr/share/go-agent/agent.sh'

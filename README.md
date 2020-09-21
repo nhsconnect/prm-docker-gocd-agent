@@ -1,5 +1,17 @@
 # docker-gocd-agent
 
+## Setup
+
+Follow these steps to create an ECR repository:
+1. `cd terraform`
+2. `dojo`
+3. `aws-cli-assumerole -rmfa <role-arn> <mfa-otp-code>`
+4. `terraform init`
+5. `terraform plan`
+6. `terraform apply`
+
+## Usage
+
 A docker image with Go Agent, docker daemon and Dojo.
 
 In order to set go-agent [autoregister properties](https://docs.go.cd/current/advanced_usage/agent_auto_register.html),
@@ -30,17 +42,17 @@ GO_AGENT_SYSTEM_PROPERTIES
 AGENT_BOOTSTRAPPER_JVM_ARGS
 ```
 
-## Secrets
+### Secrets
 
 There is one secret `AGENT_KEY`. It can be set as environment or it will be fetched from AWS SSM store on start.
 
-## Volumes
+### Volumes
 
 You are supposed to mount
  * `/var/lib/docker` for docker in docker.
  * `/var/lib/go-agent/pipelines` for agents workspace.
 
-## Sudo
+### Sudo
 
 Some agents need sudo for several commands. By default image disables sudo.
 You can set `AGENT_SUDO_CONFIG` to set contents of `go` user's sudo file.
@@ -49,7 +61,7 @@ So for example:
  - ultimate sudo access can be set with `ALL=(ALL) NOPASSWD: ALL`.
  - sudo for running remove: `ALL=(ALL) NOPASSWD: /bin/rm *`
 
-## Deleting agent
+### Deleting agent
 
 To delete 1 go-agent using server API, first disable it, and then remove:
  (its guid is in: /var/lib/go-agent/config/guid.txt)

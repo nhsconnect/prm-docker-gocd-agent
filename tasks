@@ -2,6 +2,7 @@
 
 set -Eeo pipefail
 
+AWS_DEFAULT_REGION=eu-west-2
 RELEASER_VERSION="2.1.0"
 DOCKER_OPS_VERSION="2.0.0"
 
@@ -22,6 +23,10 @@ image_name="gocd-agent"
 registry="327778747031.dkr.ecr.eu-west-2.amazonaws.com"
 image_dir="./image"
 imagerc_filename="imagerc"
+
+function docker_login {
+  eval $(dojo "aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION")
+}
 
 command="$1"
 set +u

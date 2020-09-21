@@ -2,13 +2,16 @@
 
 ## Setup
 
+Make sure that the following AWS env variables are unset: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`.
+
+Assume role with elevated permissions:
+1. `dojo`
+2. `aws-cli-assumerole -rmfa <role-arn> <mfa-otp-code>`
+
 Follow these steps to create an ECR repository:
-1. `cd terraform`
-2. `dojo`
-3. `aws-cli-assumerole -rmfa <role-arn> <mfa-otp-code>`
-4. `terraform init`
-5. `terraform plan`
-6. `terraform apply`
+1. `terraform init`
+2. `terraform plan`
+3. `terraform apply`
 
 ## Usage
 

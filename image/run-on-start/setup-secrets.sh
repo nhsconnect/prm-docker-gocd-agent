@@ -27,7 +27,7 @@ fi
 if [ -z "$AGENT_KEY" ]; then
   echo "AGENT_KEY is not set. It is needed for go agent to autoregister"
   # the variables exported here are not visible in services' run files
-  AGENT_KEY=$(read_aws_secret "/NHS/deductions-327778747031/gocd-${GOCD_ENVIRONMENT}/autoregister_key")
+  AGENT_KEY=$(read_aws_secret "/repo/${GOCD_ENVIRONMENT}/user-input/autoregister-key")
 fi
 
 echo "export AGENT_KEY=${AGENT_KEY}" >> /var/go/gocd_agent_key

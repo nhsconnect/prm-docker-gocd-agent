@@ -1,3 +1,7 @@
+### 0.0.4 (2020-Oct-07)
+
+Correct ssm key path (/repo/${GOCD_ENVIRONMENT}/output/prm-gocd-infra/gocd-agent-image-tag)
+
 ### 0.0.3 (2020-Oct-07)
 
 Refactor ssm key to use the agreed convention (/repo/${GOCD_ENVIRONMENT}/user-input/autoregister-key)

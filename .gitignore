@@ -1,3 +1,6 @@
 /ops/
 /image/imagerc*
 .terraform
+.idea/
+docker-kudu-gocd-agent/
+

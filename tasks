@@ -21,7 +21,7 @@ source $DOCKER_OPS_FILE
 
 image_name="gocd-agent"
 registry="327778747031.dkr.ecr.eu-west-2.amazonaws.com"
-image_dir="./image"
+image_dir="./docker-kudu-gocd-agent/image"
 imagerc_filename="imagerc"
 
 function docker_login {
@@ -38,8 +38,10 @@ case "${command}" in
       releaser::verify_release_ready
       ;;
   build_local)
-      image_tag=$(git rev-parse HEAD)
-      docker_ops::docker_build "${image_dir}" "${imagerc_filename}" "${image_name}" "${image_tag}" "${registry}"
+      rm -rf docker-kudu-gocd-agent
+      git clone --branch 0.1.0 https://github.com/kudulab/docker-kudu-gocd-agent.git
+      cd ./docker-kudu-gocd-agent
+      DOCKER_IMAGE_NAME=gocd-agent DOCKER_REGISTRY=327778747031.dkr.ecr.eu-west-2.amazonaws.com ./tasks build_local v20.10.0
       ;;
   build)
       docker_login

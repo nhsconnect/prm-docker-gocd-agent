@@ -1,44 +1,54 @@
 format_version: 4
-common:
-  apply_job: &apply_job
-    resources:
-      - docker
-    tasks:
-      - exec:
-          - command: /bin/bash
-          - arguments:
-              - c
-              - ./tasks set_version
-      - exec:
-          - command: /bin/bash
-          - arguments:
-              - c
-              - ./tasks verify
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks build
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks release
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks publish
-
 pipelines:
   "prm-docker-gocd-agent":
-    group: deductions
+    group: gocd
     label_template: "${git[:8]}"
     materials:
       git:
         type: configrepo
     stages:
-      - build_and_publish:
+      - build:
           clean_workspace: true
           jobs:
-            apply: *apply_job
+            build:
+              artifacts:
+                - build:
+                    source: "docker-kudu-gocd-agent/image/imagerc*"
+                    destination: docker-kudu-gocd-agent/image
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                        - -c
+                        - ./tasks build
+      - release:
+          clean_workspace: true
+          jobs:
+            release:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks release
+      - publish:
+          clean_workspace: true
+          jobs:
+            publish:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    stage: build
+                    job: build
+                    source: docker-kudu-gocd-agent/image
+                    destination: docker-kudu-gocd-agent
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks publish

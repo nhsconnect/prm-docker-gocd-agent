@@ -1,3 +1,5 @@
+### 0.1.1 (2021-Feb-15)
+Pipeline setup
 ### 0.1.0 (2021-Feb-12)
 Switched to the upstream image: https://github.com/kudulab/docker-kudu-gocd-agent
 ### 0.0.20 (2021-Jan-15)

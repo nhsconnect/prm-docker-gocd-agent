@@ -28,6 +28,16 @@ function docker_login {
   eval $(dojo "aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION")
 }
 
+function get_aws_value {
+  secret_id=$1
+  json=$(aws ssm get-parameter --with-decryption --region $AWS_DEFAULT_REGION --name $secret_id)
+  if [ $? != 0 ]; then
+    >&2 echo "Failed to obtain SSM value: $secret_id"
+    exit 5
+  fi
+  echo $json | jq -r ".Parameter.Value"
+}
+
 command="$1"
 set +u
 case "${command}" in
@@ -49,6 +59,11 @@ case "${command}" in
       docker_ops::push "${image_dir}" "${imagerc_filename}"
       ;;
   release)
+      # GITHUB_CREDENTIALS should be in format of account-name:api-key
+      export GITHUB_CREDENTIALS=$(get_aws_value "/repo/prod/user-input/gocd-github-api-key")
+      OLD_URL=$(git remote get-url origin)
+      NEW_URL=$(echo $OLD_URL | sed "s|https://|https://$GITHUB_CREDENTIALS@|g")
+      git remote set-url origin $NEW_URL
       ./tasks verify
       releaser::git_tag_from_changelog
       exit $?

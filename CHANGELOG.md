@@ -1,3 +1,5 @@
+### 0.1.3 (2021-May-08)
+Added external prefix to manually added secret
 ### 0.1.2 (2021-Feb-15)
 Updated upstream to 0.2.0 in order to get newer Dojo
 ### 0.1.1 (2021-Feb-15)

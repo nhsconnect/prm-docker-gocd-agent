@@ -60,7 +60,7 @@ case "${command}" in
       ;;
   release)
       # GITHUB_CREDENTIALS should be in format of account-name:api-key
-      export GITHUB_CREDENTIALS=$(get_aws_value "/repo/prod/user-input/gocd-github-api-key")
+      export GITHUB_CREDENTIALS=$(get_aws_value "/repo/prod/user-input/external/gocd-github-api-key")
       OLD_URL=$(git remote get-url origin)
       NEW_URL=$(echo $OLD_URL | sed "s|https://|https://$GITHUB_CREDENTIALS@|g")
       git remote set-url origin $NEW_URL

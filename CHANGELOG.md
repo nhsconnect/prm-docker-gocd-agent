@@ -1,3 +1,5 @@
+### 0.2.0 (2021-Nov-29)
+New method to clean docker disk space
 ### 0.1.3 (2021-May-08)
 Added external prefix to manually added secret
 ### 0.1.2 (2021-Feb-15)

@@ -1,3 +1,5 @@
+### 0.2.1 (2022-Apr-29)
+Upgrade image cleanup script version
 ### 0.2.0 (2021-Nov-29)
 New method to clean docker disk space
 ### 0.1.3 (2021-May-08)

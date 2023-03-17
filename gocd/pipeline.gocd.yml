@@ -13,8 +13,8 @@ pipelines:
             build:
               artifacts:
                 - build:
-                    source: "docker-kudu-gocd-agent/image/imagerc*"
-                    destination: docker-kudu-gocd-agent/image
+                    source: "image/imagerc*"
+                    destination: image
               resources:
                 - docker
               tasks:
@@ -45,8 +45,8 @@ pipelines:
                 - fetch:
                     stage: build
                     job: build
-                    source: docker-kudu-gocd-agent/image
-                    destination: docker-kudu-gocd-agent
+                    source: image
+                    destination: .
                 - exec:
                     command: /bin/bash
                     arguments:

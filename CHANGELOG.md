@@ -1,3 +1,5 @@
+### 0.2.2 (2023-Mar-17)
+Make GoCD agent image a first party instead of third party dependency
 ### 0.2.1 (2022-Apr-29)
 Upgrade image cleanup script version
 ### 0.2.0 (2021-Nov-29)

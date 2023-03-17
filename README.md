@@ -123,3 +123,8 @@ $ curl localhost:8153/go/api/agents/cb031760-29b8-46ba-bb40-436e7a077a90
 $ curl localhost:8153/go/api/agents/cb031760-29b8-46ba-bb40-436e7a077a90
  -H 'Accept: application/vnd.go.cd.v2+json' -X DELETE
 ```
+
+### Releasing a new version 
+
+When releasing a new version a tag needs to be added to the `CHANGELOG.md`. 
+This will automatically create a new version during the pipeline run.

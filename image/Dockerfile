@@ -6,7 +6,7 @@ USER root
 # Nano, curl is for humans administrating/experimenting.
 RUN apt-get update &&\
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends\
-  git tzdata wget curl ca-certificates nano cron tar zip unzip bzip2 sudo rsync apt-transport-https ssh-client make &&\
+  git tzdata wget curl ca-certificates nano cron tar zip unzip bzip2 sudo rsync apt-transport-https ssh-client make gnupg lsb-release &&\
   apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean &&\
   rm -rf /tmp/* /var/tmp/* && rm -rf /var/lib/apt/lists/*
 
@@ -41,6 +41,12 @@ VOLUME /var/lib/docker
 
 ENV DOCKER_BASE_OPTS="--data-root=/var/lib/docker -H unix:///var/run/docker.sock"
 ENV DOCKER_OPTS="--storage-driver overlay2"
+
+#Install Trivy
+RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null &&\
+  echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list &&\
+  sudo apt-get update &&\
+  sudo apt-get install trivy
 
 ENV TERM="xterm"
 

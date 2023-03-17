@@ -3,8 +3,8 @@
 set -Eeo pipefail
 
 AWS_DEFAULT_REGION=eu-west-2
-RELEASER_VERSION="2.1.0"
-DOCKER_OPS_VERSION="2.0.0"
+RELEASER_VERSION="2.1.3"
+DOCKER_OPS_VERSION="2.0.1"
 
 RELEASER_FILE="ops/releaser-${RELEASER_VERSION}"
 DOCKER_OPS_FILE="ops/docker-ops-${DOCKER_OPS_VERSION}"
@@ -20,8 +20,8 @@ fi
 source $DOCKER_OPS_FILE
 
 image_name="gocd-agent"
-registry="327778747031.dkr.ecr.eu-west-2.amazonaws.com"
-image_dir="./docker-kudu-gocd-agent/image"
+image_registry="327778747031.dkr.ecr.eu-west-2.amazonaws.com"
+image_dir="./image"
 imagerc_filename="imagerc"
 
 function docker_login {
@@ -48,10 +48,8 @@ case "${command}" in
       releaser::verify_release_ready
       ;;
   build_local)
-      rm -rf docker-kudu-gocd-agent
-      git clone https://github.com/kudulab/docker-kudu-gocd-agent.git
-      cd ./docker-kudu-gocd-agent
-      DOCKER_IMAGE_NAME=gocd-agent DOCKER_REGISTRY=327778747031.dkr.ecr.eu-west-2.amazonaws.com ./tasks build_local v20.10.0
+      image_tag=$(git rev-parse HEAD)
+      docker_ops::docker_build "${image_dir}" "${imagerc_filename}" "${image_name}" "${image_tag}" "${image_registry}"
       ;;
   build)
       docker_login

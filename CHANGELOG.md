@@ -1,3 +1,5 @@
+### 0.2.3 (2023-Mar-21)
+Add trivy to the GoCD agents
 ### 0.2.2 (2023-Mar-17)
 Make GoCD agent image a first party instead of third party dependency
 ### 0.2.1 (2022-Apr-29)
